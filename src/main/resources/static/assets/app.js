@@ -26,19 +26,103 @@ let current = null;
 let currentRows = [];
 let editing = null;
 let toastTimeout;
+let sessao = null;
+let modulosVisiveis = [];
 const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+// Recupera o token CSRF da sessão autenticada.
+async function obterCsrf() {
+  const resposta = await fetch("/csrf", {
+    method: "GET",
+    credentials: "same-origin",
+    cache: "no-store",
+    headers: { "Accept": "application/json" }
+  });
+
+  // Se a sessão expirou, o Spring Security redireciona para /login.
+  if (resposta.redirected && new URL(resposta.url).pathname === "/login") {
+    window.location.assign("/login");
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+  if (!resposta.ok) {
+    throw new Error(`Falha ao obter CSRF: HTTP ${resposta.status}`);
+  }
+  const tipo = resposta.headers.get("Content-Type") || "";
+  if (!tipo.includes("application/json")) {
+    throw new Error("O endpoint /csrf não retornou JSON. Confira sua sessão.");
+  }
+  return resposta.json();
+}
+
+// Usa a sessão do navegador e acrescenta CSRF a POST, PUT, PATCH e DELETE.
 async function api(path, options={}) {
-  const response = await fetch(path, options);
+  const metodo = (options.method || "GET").toUpperCase();
+  const headers = new Headers(options.headers || {});
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(metodo)) {
+    const csrf = await obterCsrf();
+    headers.set(csrf.headerName, csrf.token);
+  }
+  const response = await fetch(path, {
+    ...options,
+    method: metodo,
+    headers,
+    credentials: "same-origin"
+  });
+  if (response.redirected && new URL(response.url).pathname === "/login") {
+    window.location.assign("/login");
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
   const text = await response.text();
   let result;
-  try {result = text ? JSON.parse(text) : null;} catch {result=text;}
+  try { result = text ? JSON.parse(text) : null; } catch { result = text; }
   if (!response.ok) {
-    const error = typeof result === "string" ? result : (result?.message || result?.detail || result?.error || JSON.stringify(result));
+    const error = typeof result === "string" ? result :
+      (result?.message || result?.detail || result?.error || JSON.stringify(result));
     throw new Error(`HTTP ${response.status}: ${error || response.statusText}`);
   }
   return result;
 }
+
+// Faz o logout através de um formulário POST nativo.
+// O navegador acompanha o redirecionamento do Spring Security automaticamente.
+async function sairDoSistema() {
+  const botao = document.getElementById("botaoSair");
+  botao.disabled = true;
+  try {
+    const csrf = await obterCsrf();
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/logout";
+    form.style.display = "none";
+
+    const token = document.createElement("input");
+    token.type = "hidden";
+    token.name = csrf.parameterName;
+    token.value = csrf.token;
+    form.appendChild(token);
+
+    document.body.appendChild(form);
+    form.submit();
+  } catch (erro) {
+    console.error("Erro no logout:", erro);
+    notify(erro.message || "Não foi possível sair do sistema.");
+    botao.disabled = false;
+  }
+}
+
+function configurarLogout() {
+  const topbar = document.querySelector(".topbar");
+  if (!topbar || document.getElementById("botaoSair")) return;
+  const botao = document.createElement("button");
+  botao.id = "botaoSair";
+  botao.type = "button";
+  botao.textContent = "Sair";
+  botao.className = "btn secondary";
+  botao.style.marginLeft = "12px";
+  botao.addEventListener("click", sairDoSistema);
+  topbar.appendChild(botao);
+}
+
 function notify(message) {
   const toast = $("toast"); toast.textContent=message; toast.classList.add("visible");
   clearTimeout(toastTimeout); toastTimeout=setTimeout(()=>toast.classList.remove("visible"),4000);
@@ -57,9 +141,48 @@ function nice(value) {
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
 }
+// A visibilidade do menu acompanha as mesmas regras do Spring Security.
+const permissao = {
+  ADMINISTRADOR: { todos: true },
+  MEDICO: { ver: ["pacientes","telefones","profissionais","medicos","enfermeiros","especialidades","agendamentos","atendimentos","prontuarios","exames","prescricoes","itens-prescricao","medicamentos","relatorio-agendamentos"], escrever: ["atendimentos","prontuarios","exames","prescricoes","itens-prescricao"] },
+  ENFERMEIRO: { ver: ["pacientes","telefones","profissionais","medicos","enfermeiros","especialidades","agendamentos","atendimentos","prontuarios","exames","prescricoes","itens-prescricao","medicamentos","relatorio-agendamentos"], escrever: [] },
+  RECEPCAO: { ver: ["pacientes","telefones","profissionais","medicos","enfermeiros","especialidades","agendamentos","relatorio-agendamentos"], escrever: ["pacientes","telefones","agendamentos"] }
+};
+function perfilAtual() {
+  const perfis = sessao?.perfis || [];
+  for (const role of ["ADMINISTRADOR","MEDICO","ENFERMEIRO","RECEPCAO"]) {
+    if (perfis.includes("ROLE_" + role)) return role;
+  }
+  return null;
+}
+function temAcesso(modulo, operacao="ver") {
+  const cfg = permissao[perfilAtual()];
+  if (!cfg) return false;
+  if (cfg.todos) return true;
+  return (cfg[operacao] || []).includes(modulo.key);
+}
+async function carregarSessao() {
+  try {
+    sessao = await api("/auth/me");
+    if (!perfilAtual()) throw new Error("Perfil de acesso não encontrado");
+    modulosVisiveis = modules.filter(m=>temAcesso(m));
+    const antigo = document.querySelector(".user-setting");
+    if (antigo) antigo.remove();
+    const topbar = document.querySelector(".topbar");
+    const info = document.createElement("div");
+    info.className = "user-profile";
+    info.innerHTML = `<span class="profile-email">${escapeHTML(sessao.email)}</span><span class="profile-role">${escapeHTML(perfilAtual())}</span>`;
+    const sair = document.getElementById("botaoSair");
+    topbar.insertBefore(info, sair);
+  } catch (e) {
+    document.querySelector(".user-setting")?.remove();
+    if (e.message && !e.message.includes("Sessão expirada")) notify("Falha ao identificar o usuário: " + e.message);
+    throw e;
+  }
+}
 function setNavigation() {
   $("navigation").innerHTML = `<button class="nav-link active" data-home><span class="nav-icon">⌂</span>Visão geral</button>`+
-    modules.map(m=>`<button class="nav-link" data-key="${m.key}"><span class="nav-icon">${m.icon}</span>${m.title}</button>`).join("");
+    modulosVisiveis.map(m=>`<button class="nav-link" data-key="${m.key}"><span class="nav-icon">${m.icon}</span>${m.title}</button>`).join("");
   $("navigation").querySelector("[data-home]").addEventListener("click",showHome);
   $("navigation").querySelectorAll("[data-key]").forEach(button=>button.addEventListener("click",()=>showModule(button.dataset.key)));
 }
@@ -72,12 +195,12 @@ function showHome() {
   $("breadcrumb").textContent="Visão geral";selectNav(null);refreshDashboard();
 }
 function showModule(key) {
-  current=modules.find(m=>m.key===key); if(!current)return;
+  current=modulosVisiveis.find(m=>m.key===key); if(!current){notify("Acesso não permitido.");return;}
   $("homePage").classList.add("hidden"); $("listPage").classList.remove("hidden");
-  $("newBtn").classList.toggle("hidden",!!current.readOnly);
+  $("newBtn").classList.toggle("hidden",!!current.readOnly || !temAcesso(current,"escrever"));
   $("breadcrumb").textContent=current.title; $("sectionTitle").textContent=current.title;
   $("sectionDescription").textContent=current.desc; $("search").value="";
-  $("tableNote").textContent=current.readOnly?"Somente leitura: dados consultados diretamente da VIEW no MySQL.":current.audit?"Auditoria: ID do usuário indicado no topo.":(!current.remove?"Registros preservados para manter o histórico.":"Use as ações para editar ou excluir.");
+  $("tableNote").textContent=(current.readOnly || !temAcesso(current,"escrever"))?"Consulta disponível para seu perfil.":current.audit?"Auditoria: ID do usuário indicado no topo.":(!current.remove?"Registros preservados para manter o histórico.":"Use as ações para editar ou excluir.");
   selectNav(key);loadRecords();
 }
 async function loadRecords() {
@@ -98,15 +221,15 @@ function drawTable(error=null) {
   if(!current)return;
   const idFields=Object.keys(currentRows[0]||{}).filter(k=>/^id[A-Z]/.test(k));
   const columns=[...idFields.slice(0,current.composite?2:1),...current.fields.map(f=>f.name)].filter((x,i,arr)=>arr.indexOf(x)===i).slice(0,6);
-  $("tableHead").innerHTML=`<tr>${columns.map(k=>`<th>${escapeHTML(fieldLabel(k))}</th>`).join("")}${current.readOnly?"":"<th>Ações</th>"}</tr>`;
+  $("tableHead").innerHTML=`<tr>${columns.map(k=>`<th>${escapeHTML(fieldLabel(k))}</th>`).join("")}${(current.readOnly || !temAcesso(current,"escrever"))?"":"<th>Ações</th>"}</tr>`;
   const search=$("search").value.trim().toLocaleLowerCase("pt-BR");
   const visible=currentRows.map((record,index)=>({record,index})).filter(({record})=>JSON.stringify(record).toLocaleLowerCase("pt-BR").includes(search));
   if(error || !visible.length) {
-    $("tableBody").innerHTML=`<tr><td class="empty" colspan="${columns.length+(current.readOnly?0:1)}">${escapeHTML(error||(search?"Nenhum resultado para essa busca.":"Nenhum registro encontrado."))}</td></tr>`;
+    $("tableBody").innerHTML=`<tr><td class="empty" colspan="${columns.length+((current.readOnly || !temAcesso(current,"escrever"))?0:1)}">${escapeHTML(error||(search?"Nenhum resultado para essa busca.":"Nenhum registro encontrado."))}</td></tr>`;
   } else {
     $("tableBody").innerHTML=visible.map(({record,index})=>{
       const id=recordId(record);
-      return `<tr>${columns.map(key=>`<td title="${escapeHTML(nice(record[key]))}">${escapeHTML(nice(record[key]))}</td>`).join("")}${current.readOnly?"":`<td><div class="actions"><button class="action-btn" data-edit="${index}">Editar</button>${current.remove?`<button class="action-btn danger" data-remove="${index}">Excluir</button>`:""}</div></td>`}</tr>`;
+      return `<tr>${columns.map(key=>`<td title="${escapeHTML(nice(record[key]))}">${escapeHTML(nice(record[key]))}</td>`).join("")}${(current.readOnly || !temAcesso(current,"escrever"))?"":`<td><div class="actions"><button class="action-btn" data-edit="${index}">Editar</button>${(current.remove && temAcesso(current,"excluir"))?`<button class="action-btn danger" data-remove="${index}">Excluir</button>`:""}</div></td>`}</tr>`;
     }).join("");
     $("tableBody").querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openForm(currentRows[Number(b.dataset.edit)])));
     $("tableBody").querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>removeRecord(currentRows[Number(b.dataset.remove)])));
@@ -114,6 +237,7 @@ function drawTable(error=null) {
   $("recordTotal").textContent=`${visible.length} de ${currentRows.length} registro(s)`;
 }
 function openForm(record=null) {
+  if (!temAcesso(current,"escrever") || current.readOnly) { notify("Seu perfil não permite alterações neste módulo.");return; }
   editing=record;$("formTitle").textContent=record?`Editar ${current.title.toLowerCase()}`:`Cadastrar em ${current.title.toLowerCase()}`;
   $("formMessage").classList.add("hidden");
   $("formFields").innerHTML=current.fields.map(field=>{
@@ -149,36 +273,40 @@ function makePayload() {
 }
 async function saveRecord(event){
   event.preventDefault();
+  if (!temAcesso(current,"escrever")) return notify("Operação não permitida.");
   const button=$("saveBtn");button.disabled=true;
   try {
     const path=editing?detailPath(recordId(editing)):`/${current.key}`;
     const headers={"Content-Type":"application/json; charset=utf-8"};
-    if(current.audit)headers["X-Usuario-Id"]=$("userId").value.trim()||"4";
+    if(current.audit)headers["X-Usuario-Id"]=String(sessao.idUsuario);
     await api(path,{method:editing?"PUT":"POST",headers,body:JSON.stringify(makePayload())});
     closeForm();notify("Registro salvo com sucesso.");await loadRecords();
   }catch(error){$("formMessage").textContent=error.message;$("formMessage").classList.remove("hidden");}
   finally{button.disabled=false;}
 }
 async function removeRecord(record){
+  if (!temAcesso(current,"excluir")) return notify("Exclusão não permitida.");
   const id=recordId(record);
   if(!window.confirm(`Deseja realmente excluir o registro ${id}?`))return;
   try{await api(detailPath(id),{method:"DELETE"});notify(current.key==="usuarios"?"Usuário desativado com sucesso.":"Registro excluído com sucesso.");await loadRecords();}
   catch(error){notify(`Erro ao excluir: ${error.message}`);}
 }
 async function checkStatus(){
-  try{await api("/pacientes");$("statusIndicator").className="status-indicator ok";$("statusText").textContent="API conectada";}
+  try{await api("/auth/me");$("statusIndicator").className="status-indicator ok";$("statusText").textContent="API conectada";}
   catch{$("statusIndicator").className="status-indicator fail";$("statusText").textContent="API indisponível — inicie o backend";}
 }
 async function refreshDashboard(){
-  const targets=[{key:"pacientes",name:"Pacientes",icon:"♙"},{key:"profissionais",name:"Profissionais",icon:"⚕"},{key:"agendamentos",name:"Agendamentos",icon:"▦"},{key:"atendimentos",name:"Atendimentos",icon:"▤"}];
+  const targets=[{key:"pacientes",name:"Pacientes",icon:"♙"},{key:"profissionais",name:"Profissionais",icon:"⚕"},{key:"agendamentos",name:"Agendamentos",icon:"▦"},{key:"atendimentos",name:"Atendimentos",icon:"▤"}].filter(t=>modulosVisiveis.some(m=>m.key===t.key));
   $("metrics").innerHTML=targets.map(t=>`<div class="metric"><div class="metric-header">${t.name}<span class="metric-icon">${t.icon}</span></div><div class="metric-number" id="count-${t.key}">—</div><div class="metric-sub">Registros cadastrados</div></div>`).join("");
   for(const t of targets){try{const r=await api("/"+t.key);const el=$("count-"+t.key);if(el)el.textContent=Array.isArray(r)?r.length:(r?.totalElements??"—");}catch{const el=$("count-"+t.key);if(el)el.textContent="—";}}
   checkStatus();
 }
-function initialize(){
+async function initialize(){
+  configurarLogout();
+  try { await carregarSessao(); } catch { return; }
   setNavigation();
   $("dateChip").textContent=new Intl.DateTimeFormat("pt-BR",{dateStyle:"long"}).format(new Date());
-  $("shortcuts").innerHTML=[...modules.slice(0,7),modules[modules.length-1]].map(m=>`<button class="shortcut" data-shortcut="${m.key}"><span>${m.icon}</span><b>${m.title}</b></button>`).join("");
+  $("shortcuts").innerHTML=[...modulosVisiveis.slice(0,7),...modulosVisiveis.filter(m=>m.key==="relatorio-agendamentos")].map(m=>`<button class="shortcut" data-shortcut="${m.key}"><span>${m.icon}</span><b>${m.title}</b></button>`).join("");
   $("shortcuts").querySelectorAll("[data-shortcut]").forEach(b=>b.addEventListener("click",()=>showModule(b.dataset.shortcut)));
   $("newBtn").addEventListener("click",()=>openForm());
   $("refreshBtn").addEventListener("click",loadRecords);
