@@ -144,9 +144,9 @@ function nice(value) {
 // A visibilidade do menu acompanha as mesmas regras do Spring Security.
 const permissao = {
   ADMINISTRADOR: { todos: true },
-  MEDICO: { ver: ["pacientes","telefones","profissionais","medicos","enfermeiros","especialidades","agendamentos","atendimentos","prontuarios","exames","prescricoes","itens-prescricao","medicamentos","relatorio-agendamentos"], escrever: ["atendimentos","prontuarios","exames","prescricoes","itens-prescricao"] },
-  ENFERMEIRO: { ver: ["pacientes","telefones","profissionais","medicos","enfermeiros","especialidades","agendamentos","atendimentos","prontuarios","exames","prescricoes","itens-prescricao","medicamentos","relatorio-agendamentos"], escrever: [] },
-  RECEPCAO: { ver: ["pacientes","telefones","profissionais","medicos","enfermeiros","especialidades","agendamentos","relatorio-agendamentos"], escrever: ["pacientes","telefones","agendamentos"] }
+  MEDICO: { ver: ["pacientes","telefones","profissionais","medicos","especialidades","agendamentos","atendimentos","prontuarios","exames","prescricoes","itens-prescricao","medicamentos","relatorio-agendamentos"], escrever: ["atendimentos","prontuarios","exames","prescricoes","itens-prescricao"] },
+  ENFERMEIRO: { ver: ["pacientes","telefones","profissionais","medicos","especialidades","agendamentos","atendimentos","prontuarios","exames","prescricoes","itens-prescricao","medicamentos","relatorio-agendamentos"], escrever: [] },
+  RECEPCAO: { ver: ["pacientes","telefones","profissionais","medicos","especialidades","agendamentos","relatorio-agendamentos"], escrever: ["pacientes","telefones","agendamentos"] }
 };
 function perfilAtual() {
   const perfis = sessao?.perfis || [];
@@ -171,7 +171,7 @@ async function carregarSessao() {
     const topbar = document.querySelector(".topbar");
     const info = document.createElement("div");
     info.className = "user-profile";
-    info.innerHTML = `<span class="profile-email">${escapeHTML(sessao.email)}</span><span class="profile-role">${escapeHTML(perfilAtual())}</span>`;
+    info.innerHTML = `<span class="profile-email">${escapeHTML(sessao.email)}</span><span class="profile-role">${escapeHTML(({ADMINISTRADOR:"Administrador",MEDICO:"Médico",ENFERMEIRO:"Enfermeiro",RECEPCAO:"Recepção"})[perfilAtual()])}</span>`;
     const sair = document.getElementById("botaoSair");
     topbar.insertBefore(info, sair);
   } catch (e) {
@@ -181,8 +181,16 @@ async function carregarSessao() {
   }
 }
 function setNavigation() {
-  $("navigation").innerHTML = `<button class="nav-link active" data-home><span class="nav-icon">⌂</span>Visão geral</button>`+
-    modulosVisiveis.map(m=>`<button class="nav-link" data-key="${m.key}"><span class="nav-icon">${m.icon}</span>${m.title}</button>`).join("");
+  const groups = [
+    ["ATENDIMENTO", ["pacientes","agendamentos","atendimentos","prontuarios","telefones"]],
+    ["EQUIPE E CUIDADO", ["profissionais","medicos","enfermeiros","especialidades","exames","medicamentos","prescricoes","itens-prescricao"]],
+    ["GESTÃO", ["relatorio-agendamentos","usuarios","grupos"]]
+  ];
+  $("navigation").innerHTML = `<button class="nav-link active" data-home><span class="nav-icon">⌂</span>Visão geral</button>` +
+    groups.map(([label, keys]) => {
+      const items = modulosVisiveis.filter(m => keys.includes(m.key));
+      return items.length ? `<div class="nav-group">${label}</div>` + items.map(m=>`<button class="nav-link" data-key="${m.key}"><span class="nav-icon">${m.icon}</span>${m.title}</button>`).join("") : "";
+    }).join("");
   $("navigation").querySelector("[data-home]").addEventListener("click",showHome);
   $("navigation").querySelectorAll("[data-key]").forEach(button=>button.addEventListener("click",()=>showModule(button.dataset.key)));
 }
@@ -200,7 +208,7 @@ function showModule(key) {
   $("newBtn").classList.toggle("hidden",!!current.readOnly || !temAcesso(current,"escrever"));
   $("breadcrumb").textContent=current.title; $("sectionTitle").textContent=current.title;
   $("sectionDescription").textContent=current.desc; $("search").value="";
-  $("tableNote").textContent=(current.readOnly || !temAcesso(current,"escrever"))?"Consulta disponível para seu perfil.":current.audit?"Auditoria: ID do usuário indicado no topo.":(!current.remove?"Registros preservados para manter o histórico.":"Use as ações para editar ou excluir.");
+  $("tableNote").textContent=(current.readOnly || !temAcesso(current,"escrever"))?"Consulta disponível para seu perfil.":current.audit?"Alterações vinculadas ao seu usuário.":(!current.remove?"Registros preservados para manter o histórico.":"Use as ações para editar ou excluir.");
   selectNav(key);loadRecords();
 }
 async function loadRecords() {
@@ -292,8 +300,8 @@ async function removeRecord(record){
   catch(error){notify(`Erro ao excluir: ${error.message}`);}
 }
 async function checkStatus(){
-  try{await api("/auth/me");$("statusIndicator").className="status-indicator ok";$("statusText").textContent="API conectada";}
-  catch{$("statusIndicator").className="status-indicator fail";$("statusText").textContent="API indisponível — inicie o backend";}
+  try{await api("/auth/me");$("statusIndicator").className="status-indicator ok";$("statusText").textContent="Sistema conectado";}
+  catch{$("statusIndicator").className="status-indicator fail";$("statusText").textContent="Conexão indisponível — tente novamente";}
 }
 async function refreshDashboard(){
   const targets=[{key:"pacientes",name:"Pacientes",icon:"♙"},{key:"profissionais",name:"Profissionais",icon:"⚕"},{key:"agendamentos",name:"Agendamentos",icon:"▦"},{key:"atendimentos",name:"Atendimentos",icon:"▤"}].filter(t=>modulosVisiveis.some(m=>m.key===t.key));
@@ -318,7 +326,8 @@ async function initialize(){
   $("retryConnection").addEventListener("click",checkStatus);
   $("bannerPatients").addEventListener("click",()=>showModule("pacientes"));
   $("menuToggle").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
-  window.addEventListener("keydown",event=>{if(event.key==="Escape"&&!$("modalOverlay").classList.contains("hidden"))closeForm();});
+  document.addEventListener("click", event => { if (!$("sidebar").contains(event.target) && !$("menuToggle").contains(event.target)) $("sidebar").classList.remove("open"); });
+  window.addEventListener("keydown",event=>{if(event.key==="Escape") $("sidebar").classList.remove("open");if(event.key==="Escape"&&!$("modalOverlay").classList.contains("hidden"))closeForm();});
   showHome();
 }
 initialize();

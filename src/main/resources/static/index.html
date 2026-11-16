@@ -10,24 +10,24 @@
 <body>
   <div class="app">
     <aside class="sidebar" id="sidebar">
-      <div class="brand"><span class="brand-icon">✳</span><span><strong>Hospital<span class="brand-dot">.</span></strong><small>Gestão inteligente</small></span></div>
-      <div class="nav-caption">WORKSPACE <span>01</span></div>
+      <div class="brand"><span class="brand-icon">+</span><span><strong>Hospital<span class="brand-dot">.</span></strong><small>SISTEMA DE GESTÃO</small></span></div>
+      <div class="nav-caption">NAVEGAÇÃO</div>
       <nav id="navigation" aria-label="Navegação principal"></nav>
       <div class="sidebar-footer"><span class="online-dot"></span><div><strong>Sistema acadêmico</strong><small>Projeto de Banco de Dados</small></div></div>
     </aside>
     <main class="main">
       <header class="topbar">
         <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
-        <span class="breadcrumb">Workspace <span>/</span> <b id="breadcrumb">Visão geral</b></span>
-        <label class="user-setting" title="ID enviado no cabeçalho de auditoria em agendamentos e atendimentos">Usuário responsável <input id="userId" type="number" min="1" value="4"></label>
+        <span class="breadcrumb">Hospital <span>/</span> <b id="breadcrumb">Visão geral</b></span>
+
       </header>
       <div class="page">
         <section id="homePage">
           <div class="page-heading"><div><span class="eyebrow">SEU ESPAÇO DE TRABALHO</span><h1>Visão geral<span class="heading-point">.</span></h1><p>Informações e operações do hospital, em um só lugar.</p></div><span class="date-chip" id="dateChip"></span></div>
-          <div class="welcome-banner"><div class="welcome-content"><span class="banner-kicker"><span class="banner-spark">✦</span> PAINEL DE CONTROLE</span><h2>Uma visão mais clara<br>do cuidado.</h2><p>Consulte pacientes, acompanhe agendamentos e organize o dia a dia do hospital com praticidade.</p><button type="button" class="banner-button" id="bannerPatients">Ver pacientes <span>↗</span></button></div><div class="banner-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="cross-vertical"></div><div class="cross-horizontal"></div><div class="art-pulse">✦</div></div></div>
-          <div class="section-kicker"><span>INDICADORES</span><span class="section-line"></span><span class="section-aside">Dados em tempo real</span></div>
+          <div class="welcome-banner"><div class="welcome-content"><span class="banner-kicker"><span class="banner-spark">✦</span> PAINEL DE CONTROLE</span><h2>O cuidado começa<br>com organização.</h2><p>Consulte pacientes, acompanhe agendamentos e organize o dia a dia do hospital com praticidade.</p><button type="button" class="banner-button" id="bannerPatients">Ver pacientes <span>↗</span></button></div><div class="banner-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="cross-vertical"></div><div class="cross-horizontal"></div><div class="art-pulse">✦</div></div></div>
+          <div class="section-kicker"><span>INDICADORES</span><span class="section-line"></span><span class="section-aside">Atualizados ao abrir o painel</span></div>
           <div class="metrics" id="metrics"></div>
-          <div class="section-kicker section-after"><span>ACESSOS E SISTEMA</span><span class="section-line"></span></div><div class="dashboard-grid"><article class="panel"><div class="panel-head"><div class="panel-title-marker">↗</div><h2>Acesso rápido</h2><p>Escolha uma área para começar.</p></div><div class="shortcuts" id="shortcuts"></div></article><article class="panel"><div class="panel-head"><div class="panel-title-marker">◉</div><h2>Status do sistema</h2><p>Comunicação com a API Spring Boot.</p></div><div class="status-row"><span class="status-indicator" id="statusIndicator"></span><strong id="statusText">Verificando conexão...</strong></div><p class="help">Esta interface usa os endpoints do backend em que foi instalada.</p><button class="btn secondary" id="retryConnection">Verificar novamente</button></article></div>
+          <div class="section-kicker section-after"><span>ACESSOS E SISTEMA</span><span class="section-line"></span></div><div class="dashboard-grid"><article class="panel"><div class="panel-head"><div class="panel-title-marker">↗</div><h2>Acesso rápido</h2><p>Escolha uma área para começar.</p></div><div class="shortcuts" id="shortcuts"></div></article><article class="panel"><div class="panel-head"><div class="panel-title-marker">◉</div><h2>Status do sistema</h2><p>Disponibilidade do sistema hospitalar.</p></div><div class="status-row"><span class="status-indicator" id="statusIndicator"></span><strong id="statusText">Verificando conexão...</strong></div><p class="help">Confira a conexão antes de consultar ou atualizar os registros.</p><button class="btn secondary" id="retryConnection">Verificar novamente</button></article></div>
         </section>
         <section id="listPage" class="hidden">
           <div class="page-heading"><div><span class="eyebrow">GERENCIAMENTO</span><h1 id="sectionTitle"></h1><p id="sectionDescription"></p></div><button id="newBtn" class="btn primary">+ Novo registro</button></div>

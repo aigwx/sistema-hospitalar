@@ -23,12 +23,14 @@ public class SecurityConfig {
 
                         // Arquivos públicos
                         .requestMatchers(
-                                "/",
-                                "/index.html",
                                 "/assets/**",
                                 "/login",
+                                "/login.html",
+                                "/csrf",
                                 "/error"
                         ).permitAll()
+
+                        .requestMatchers("/", "/index.html").authenticated()
 
                         // Administrador: acesso completo
                         .requestMatchers("/usuarios/**", "/grupos/**")
@@ -92,8 +94,7 @@ public class SecurityConfig {
                         .hasAnyRole("ADMINISTRADOR", "MEDICO",
                                 "ENFERMEIRO", "RECEPCAO")
 
-                        // Token CSRF para usuários autenticados
-                        .requestMatchers("/csrf").authenticated()
+                        // Token CSRF também disponível antes do login
 
                         //Informações do usuário autenticado
                         .requestMatchers("/auth/me").authenticated()
@@ -103,12 +104,15 @@ public class SecurityConfig {
                 )
 
                 .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .failureUrl("/login?error")
                         .defaultSuccessUrl("/index.html", true)
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
+                        .logoutSuccessUrl("/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()

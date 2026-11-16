@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Entrar | Hospital</title><link rel="stylesheet" href="/assets/style.css"><script src="/assets/login.js" defer></script></head>
+<body class="login-page">
+<main class="login-layout">
+<section class="login-story" aria-label="Sistema de gestão hospitalar">
+<a class="brand login-brand" href="/login"><span class="brand-icon">+</span><span><strong>Hospital<span class="brand-dot">.</span></strong><small>SISTEMA DE GESTÃO</small></span></a>
+<div class="story-content"><span class="story-tag">CONECTANDO O CUIDADO</span><h1>Mais organização.<br>Mais tempo para<br><em>cuidar.</em></h1><p>Pacientes, equipes e informações conectados para acompanhar cada etapa do atendimento.</p>
+<div class="care-art" aria-hidden="true"><div class="care-ring"></div><div class="care-cross">+</div><span class="care-label label-one">Gestão integrada</span><span class="care-label label-two">Cuidado em cada etapa</span></div></div>
+<p class="story-footer">Sistema de Gestão Hospitalar · Projeto acadêmico</p>
+</section>
+<section class="login-main"><div class="login-card"><span class="eyebrow">BEM-VINDO AO HOSPITAL</span><h2>Acesse sua conta</h2><p class="login-intro">Entre com suas credenciais para continuar.</p>
+<div id="loginMessage" class="login-message hidden" role="alert"></div>
+<form id="loginForm" action="/login" method="post">
+<label for="username">E-mail</label><input id="username" name="username" type="email" autocomplete="username" placeholder="seu.email@hospital.com" required autofocus>
+<label for="password">Senha</label><div class="password-field"><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Digite sua senha" required><button id="togglePassword" type="button" aria-controls="password" aria-pressed="false">Mostrar</button></div>
+<p class="caps-warning hidden" id="capsWarning">A tecla Caps Lock está ativada.</p>
+<button id="loginSubmit" class="login-submit" type="submit">Entrar no sistema <span aria-hidden="true">→</span></button>
+</form><p class="login-support">Precisa de acesso ou esqueceu sua senha?<br>Entre em contato com o administrador do sistema.</p>
+<div class="login-security"><span aria-hidden="true">◇</span> Acesso restrito a usuários autorizados</div>
+<noscript><p>Ative o JavaScript do navegador para entrar no sistema.</p></noscript>
+</div><p class="login-bottom">Organização para a equipe. Atenção para o paciente.</p></section>
+</main></body></html>
