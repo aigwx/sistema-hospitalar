@@ -1,8 +1,20 @@
--- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
---
 -- Host: localhost    Database: hospital_db
 -- ------------------------------------------------------
 -- Server version	8.0.46
+
+-- SISTEMA HOSPITALAR 
+-- MySQL 8.0 | Estrutura exportada da base hospital_db em 15/11/2026
+-- Contem: 19 tabelas, 2 views, 5 triggers, 2 functions, 2 procedures,
+-- indices, chaves estrangeiras e somente contas ficticias para demonstracao.
+-- ATENCAO: o script recria as tabelas (DROP TABLE IF EXISTS) e apaga dados
+-- existentes no banco selecionado. NAO o execute sobre sua base em uso.
+-- Execute como usuario com permissoes de CREATE, DROP, TRIGGER e ROUTINE.
+-- Para instalar usuarios do MySQL, execute depois permissoes_mysql.sql como admin.
+-- As credenciais das contas de demonstracao sao apenas para ambiente local.
+
+CREATE DATABASE IF NOT EXISTS `hospital_db`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `hospital_db`;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -38,15 +50,8 @@ CREATE TABLE `agendamento` (
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `agendamento`
---
 
-LOCK TABLES `agendamento` WRITE;
-/*!40000 ALTER TABLE `agendamento` DISABLE KEYS */;
-INSERT INTO `agendamento` VALUES (1,1,1,'2026-11-10 14:00:00','Confirmado','Consulta de teste'),(3,1,1,'2026-11-12 14:00:00','Confirmado','Consulta de acompanhamento confirmada'),(4,1,1,'2026-11-16 10:00:00','Confirmado','Consulta para teste de auditoria');
-/*!40000 ALTER TABLE `agendamento` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -56,7 +61,7 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_agendamento_insert` AFTER INSERT ON `agendamento` FOR EACH ROW begin 
+/*!50003 CREATE*/ /*!50003 TRIGGER `trg_agendamento_insert` AFTER INSERT ON `agendamento` FOR EACH ROW begin 
 insert into historico_agendamento (
 id_agendamento,
 id_usuario,
@@ -83,7 +88,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_agendamento_update` AFTER UPDATE ON `agendamento` FOR EACH ROW begin
+/*!50003 CREATE*/ /*!50003 TRIGGER `trg_agendamento_update` AFTER UPDATE ON `agendamento` FOR EACH ROW begin
 insert into historico_agendamento (
 id_agendamento,
 id_usuario,
@@ -122,15 +127,8 @@ CREATE TABLE `atendimento` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `atendimento`
---
 
-LOCK TABLES `atendimento` WRITE;
-/*!40000 ALTER TABLE `atendimento` DISABLE KEYS */;
-INSERT INTO `atendimento` VALUES (1,1,'2026-11-05 09:12:11','Diagnóstico atualizado para teste','Atendimento realizado para validar o sistema'),(3,4,'2026-11-16 10:30:00','Paciente apresenta melhora no quadro clínico','Atendimento atualizado para teste de auditoria');
-/*!40000 ALTER TABLE `atendimento` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -140,7 +138,7 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_atendimento_insert` AFTER INSERT ON `atendimento` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50003 TRIGGER `trg_atendimento_insert` AFTER INSERT ON `atendimento` FOR EACH ROW BEGIN
     INSERT INTO historico_atendimento (
         id_atendimento,
         id_usuario,
@@ -168,7 +166,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_atendimento_update` AFTER UPDATE ON `atendimento` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50003 TRIGGER `trg_atendimento_update` AFTER UPDATE ON `atendimento` FOR EACH ROW BEGIN
     INSERT INTO historico_atendimento (
         id_atendimento,
         id_usuario,
@@ -209,14 +207,8 @@ CREATE TABLE `enfermeiro` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `enfermeiro`
---
 
-LOCK TABLES `enfermeiro` WRITE;
-/*!40000 ALTER TABLE `enfermeiro` DISABLE KEYS */;
-/*!40000 ALTER TABLE `enfermeiro` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `especialidade`
@@ -234,15 +226,8 @@ CREATE TABLE `especialidade` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `especialidade`
---
 
-LOCK TABLES `especialidade` WRITE;
-/*!40000 ALTER TABLE `especialidade` DISABLE KEYS */;
-INSERT INTO `especialidade` VALUES (2,'Cardiologia','Especialidade medica dedicada ao diagnostico e tratamento de doencas do coracao'),(3,'Oftalmologia','Teste de funcionalidades no front end');
-/*!40000 ALTER TABLE `especialidade` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `exame`
@@ -265,14 +250,8 @@ CREATE TABLE `exame` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `exame`
---
 
-LOCK TABLES `exame` WRITE;
-/*!40000 ALTER TABLE `exame` DISABLE KEYS */;
-/*!40000 ALTER TABLE `exame` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `grupos_usuarios`
@@ -287,18 +266,11 @@ CREATE TABLE `grupos_usuarios` (
   `descricao` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_grupo`),
   UNIQUE KEY `nome` (`nome`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `grupos_usuarios`
---
 
-LOCK TABLES `grupos_usuarios` WRITE;
-/*!40000 ALTER TABLE `grupos_usuarios` DISABLE KEYS */;
-INSERT INTO `grupos_usuarios` VALUES (2,'Administrador','Grupo responsável pelo gerenciamento geral do sistema hospitalar');
-/*!40000 ALTER TABLE `grupos_usuarios` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `historico_agendamento`
@@ -322,15 +294,8 @@ CREATE TABLE `historico_agendamento` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `historico_agendamento`
---
 
-LOCK TABLES `historico_agendamento` WRITE;
-/*!40000 ALTER TABLE `historico_agendamento` DISABLE KEYS */;
-INSERT INTO `historico_agendamento` VALUES (1,1,NULL,'insert','2026-11-05 09:00:38','Novo agendamento cadastrado'),(2,1,1,'update','2026-11-05 09:06:28','Status anterior: Agendado | Novo status: Confirmado'),(3,3,NULL,'insert','2026-11-11 11:45:41','Novo agendamento cadastrado'),(4,3,NULL,'update','2026-11-11 11:46:55','Status anterior: Agendado | Novo status: Confirmado'),(5,4,NULL,'insert','2026-11-14 11:07:17','Novo agendamento cadastrado'),(6,4,4,'update','2026-11-14 23:11:45','Status anterior: Confirmado | Novo status: Confirmado');
-/*!40000 ALTER TABLE `historico_agendamento` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `historico_atendimento`
@@ -354,15 +319,8 @@ CREATE TABLE `historico_atendimento` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `historico_atendimento`
---
 
-LOCK TABLES `historico_atendimento` WRITE;
-/*!40000 ALTER TABLE `historico_atendimento` DISABLE KEYS */;
-INSERT INTO `historico_atendimento` VALUES (1,1,1,'INSERT','2026-11-05 09:12:11','Novo atendimento cadastrado'),(2,1,1,'UPDATE','2026-11-05 09:22:00','Diagnóstico anterior: Diagnóstico de teste | Novo diagnóstico: Diagnóstico atualizado para teste | Observações anteriores: Atendimento realizado para validar o sistema | Novas observações: Atendimento realizado para validar o sistema'),(3,3,NULL,'INSERT','2026-11-14 11:16:55','Novo atendimento cadastrado'),(4,3,NULL,'UPDATE','2026-11-14 11:18:49','Diagnóstico anterior: Paciente apresenta quadro estável | Novo diagnóstico: Paciente apresenta melhora no quadro clínico | Observações anteriores: Atendimento realizado para teste da API | Novas observações: Atendimento atualizado durante teste da API'),(5,3,4,'UPDATE','2026-11-14 23:18:13','Diagnóstico anterior: Paciente apresenta melhora no quadro clínico | Novo diagnóstico: Paciente apresenta melhora no quadro clínico | Observações anteriores: Atendimento atualizado durante teste da API | Novas observações: Atendimento atualizado para teste de auditoria');
-/*!40000 ALTER TABLE `historico_atendimento` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `item_prescricao`
@@ -385,14 +343,8 @@ CREATE TABLE `item_prescricao` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `item_prescricao`
---
 
-LOCK TABLES `item_prescricao` WRITE;
-/*!40000 ALTER TABLE `item_prescricao` DISABLE KEYS */;
-/*!40000 ALTER TABLE `item_prescricao` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `medicamento`
@@ -410,15 +362,8 @@ CREATE TABLE `medicamento` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `medicamento`
---
 
-LOCK TABLES `medicamento` WRITE;
-/*!40000 ALTER TABLE `medicamento` DISABLE KEYS */;
-INSERT INTO `medicamento` VALUES (2,'Dipirona 500mg','Dipirona monoidratada','Medley');
-/*!40000 ALTER TABLE `medicamento` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `medico`
@@ -436,15 +381,8 @@ CREATE TABLE `medico` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `medico`
---
 
-LOCK TABLES `medico` WRITE;
-/*!40000 ALTER TABLE `medico` DISABLE KEYS */;
-INSERT INTO `medico` VALUES (1,'CRM-98765');
-/*!40000 ALTER TABLE `medico` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `paciente`
@@ -468,15 +406,8 @@ CREATE TABLE `paciente` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `paciente`
---
 
-LOCK TABLES `paciente` WRITE;
-/*!40000 ALTER TABLE `paciente` DISABLE KEYS */;
-INSERT INTO `paciente` VALUES (1,'Paciente Atualizado','00000000001','1995-05-20','Avenida Central','200','Brasilia','TESTE-API-001'),(5,'Paciente Teste','98765432100','1995-05-20','Rua de Teste','100','Brasilia','TESTE-001'),(6,'Maria Elisa Alves Reina Alves','03683504102','1952-12-12','sei lá','7000','São Paulo','015');
-/*!40000 ALTER TABLE `paciente` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `prescricao`
@@ -496,15 +427,8 @@ CREATE TABLE `prescricao` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `prescricao`
---
 
-LOCK TABLES `prescricao` WRITE;
-/*!40000 ALTER TABLE `prescricao` DISABLE KEYS */;
-INSERT INTO `prescricao` VALUES (2,3,'2026-11-14 12:50:53','Prescrição para teste dos itens');
-/*!40000 ALTER TABLE `prescricao` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `profissional`
@@ -523,15 +447,8 @@ CREATE TABLE `profissional` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `profissional`
---
 
-LOCK TABLES `profissional` WRITE;
-/*!40000 ALTER TABLE `profissional` DISABLE KEYS */;
-INSERT INTO `profissional` VALUES (1,'Profissional teste','00000000002','2026-01-01');
-/*!40000 ALTER TABLE `profissional` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `profissional_especialidade`
@@ -550,14 +467,8 @@ CREATE TABLE `profissional_especialidade` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `profissional_especialidade`
---
 
-LOCK TABLES `profissional_especialidade` WRITE;
-/*!40000 ALTER TABLE `profissional_especialidade` DISABLE KEYS */;
-/*!40000 ALTER TABLE `profissional_especialidade` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `prontuario`
@@ -579,15 +490,8 @@ CREATE TABLE `prontuario` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `prontuario`
---
 
-LOCK TABLES `prontuario` WRITE;
-/*!40000 ALTER TABLE `prontuario` DISABLE KEYS */;
-INSERT INTO `prontuario` VALUES (1,1,'2026-11-14 11:33:27','Paciente em acompanhamento médico. Histórico inicial registrado para teste do sistema.','PRT-CF249F6FE10611F1B63102004C4F4F50'),(2,5,'2026-11-14 11:44:45','Observações atualizadas durante o teste do prontuário.','PRT-CF254E8EE10611F1B63102004C4F4F50');
-/*!40000 ALTER TABLE `prontuario` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -597,7 +501,7 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `trg_prontuario_gerar_codigo` BEFORE INSERT ON `prontuario` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50003 TRIGGER `trg_prontuario_gerar_codigo` BEFORE INSERT ON `prontuario` FOR EACH ROW BEGIN
     IF NEW.codigo_prontuario IS NULL
        OR NEW.codigo_prontuario = '' THEN
 
@@ -628,15 +532,8 @@ CREATE TABLE `telefone` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `telefone`
---
 
-LOCK TABLES `telefone` WRITE;
-/*!40000 ALTER TABLE `telefone` DISABLE KEYS */;
-INSERT INTO `telefone` VALUES (1,5,'(61) 99999-1234');
-/*!40000 ALTER TABLE `telefone` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `usuario_grupo`
@@ -655,15 +552,8 @@ CREATE TABLE `usuario_grupo` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `usuario_grupo`
---
 
-LOCK TABLES `usuario_grupo` WRITE;
-/*!40000 ALTER TABLE `usuario_grupo` DISABLE KEYS */;
-INSERT INTO `usuario_grupo` VALUES (1,2),(4,2);
-/*!40000 ALTER TABLE `usuario_grupo` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Table structure for table `usuarios`
@@ -680,18 +570,11 @@ CREATE TABLE `usuarios` (
   `ativo` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `usuarios`
---
 
-LOCK TABLES `usuarios` WRITE;
-/*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (1,'Administrador Principal','admin@hospital.com','$2a$10$mM7S8x3U7wBWINOzgzSEkuHn4Kv7V8Pb.O6bCx9TRcoC4dH8nUnG6',0),(4,'Usuario de Teste','teste@hospital.com','$2a$10$EKj8pHQIfYflsB8ZbTJKG.Psi6Ll1TX.LUJQnisXrJUdIxPE6MUZm',1);
-/*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Dados desta tabela omitidos; somente contas demonstrativas aparecem ao final.
 
 --
 -- Temporary view structure for view `vw_agendamentos`
@@ -745,7 +628,7 @@ SET character_set_client = @saved_cs_client;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` FUNCTION `fn_gerar_codigo_prontuario`() RETURNS varchar(40) CHARSET utf8mb4
+CREATE FUNCTION `fn_gerar_codigo_prontuario`() RETURNS varchar(40) CHARSET utf8mb4
     NO SQL
 BEGIN
     RETURN CONCAT(
@@ -768,7 +651,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` FUNCTION `fn_total_agendamentos_paciente`(
+CREATE FUNCTION `fn_total_agendamentos_paciente`(
     p_id_paciente INT
 ) RETURNS int
     READS SQL DATA
@@ -797,7 +680,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_agendamentos_por_paciente`(
+CREATE PROCEDURE `sp_agendamentos_por_paciente`(
     IN p_id_paciente INT
 )
 BEGIN
@@ -831,7 +714,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_atendimentos_por_paciente`(
+CREATE PROCEDURE `sp_atendimentos_por_paciente`(
     IN p_id_paciente INT
 )
 BEGIN
@@ -870,7 +753,7 @@ DELIMITER ;
 /*!50001 SET character_set_results     = utf8mb4 */;
 /*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50013 SQL SECURITY DEFINER */
 /*!50001 VIEW `vw_agendamentos` AS select `a`.`id_agendamento` AS `id_agendamento`,`p`.`nome` AS `paciente`,`pr`.`nome` AS `profissional`,`a`.`data_hora` AS `data_hora`,`a`.`status` AS `status`,`a`.`motivo` AS `motivo` from ((`agendamento` `a` join `paciente` `p` on((`a`.`id_paciente` = `p`.`id_paciente`))) join `profissional` `pr` on((`a`.`id_profissional` = `pr`.`id_profissional`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -888,11 +771,33 @@ DELIMITER ;
 /*!50001 SET character_set_results     = utf8mb4 */;
 /*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50013 SQL SECURITY DEFINER */
 /*!50001 VIEW `vw_atendimentos` AS select `at`.`id_atendimento` AS `id_atendimento`,`p`.`nome` AS `paciente`,`pr`.`nome` AS `profissional`,`ag`.`data_hora` AS `data_agendamento`,`at`.`data_hora` AS `data_atendimento`,`at`.`diagnostico` AS `diagnostico`,`at`.`observacoes` AS `observacoes` from (((`atendimento` `at` join `agendamento` `ag` on((`at`.`id_agendamento` = `ag`.`id_agendamento`))) join `paciente` `p` on((`ag`.`id_paciente` = `p`.`id_paciente`))) join `profissional` `pr` on((`ag`.`id_profissional` = `pr`.`id_profissional`))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
+
+-- ================================================================
+-- CONTAS DEMONSTRATIVAS (dados ficticios)
+-- Necessarias para validar os quatro perfis apos uma restauracao limpa.
+-- As senhas estao armazenadas como BCrypt (nao em texto puro).
+-- ALTERE as senhas se publicar ou implantar fora de ambiente academico.
+-- ================================================================
+INSERT INTO `grupos_usuarios` (`id_grupo`,`nome`,`descricao`) VALUES
+(2,'Administrador','Grupo responsavel pelo gerenciamento geral do sistema hospitalar'),
+(3,'Medico','Profissional responsavel por atendimentos, prontuarios, exames e prescricoes'),
+(4,'Enfermeiro','Profissional responsavel pelo acompanhamento e assistencia aos pacientes'),
+(5,'Recepcao','Responsavel pelo cadastro de pacientes e agendamento de consultas');
+
+INSERT INTO `usuarios` (`id_usuario`,`nome`,`email`,`senha_hash`,`ativo`) VALUES
+(4,'Usuario de Teste','teste@hospital.com','$2a$10$EKj8pHQIfYflsB8ZbTJKG.Psi6Ll1TX.LUJQnisXrJUdIxPE6MUZm',1),
+(5,'Medico de Teste','medico@hospital.com','$2a$10$nPsnNdtuIGz/tBFFBLuycuknIzOwkVhdz0nHhvzqU2NciNeifXHc.',1),
+(6,'Enfermeiro de Teste','enfermeiro@hospital.com','$2a$10$WbbzLWiskgzFZKCbQqgbFeQdbYttoqCXgmgHZ0v4WH8e2izin/nZa',1),
+(7,'Recepcionista de Teste','recepcao@hospital.com','$2a$10$WnA1rcWQyD8FB4bm5PpUqORfJKJKYG1hlaRa7XlEqkwZ9xwNMeZyq',1);
+
+INSERT INTO `usuario_grupo` (`id_usuario`,`id_grupo`) VALUES
+(4,2),(5,3),(6,4),(7,5);
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -903,4 +808,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-11-15 13:36:26
+-- Dump completed on 2026-11-15 22:49:32
